@@ -212,3 +212,30 @@ class ReleaseStatusDetail(ReleaseStatus):
             else:
                 response_text = {release: "Release not found"}
         return Response(response_text)
+
+
+class PackagesList(APIMixin, APIView):
+    """
+    Packages list API View
+    """
+
+    def _get_package_dict(self, package):
+        package_dict = {'package_name': package.package_name,
+                        'upstream_url': package.upstream_url,
+                        'upstream_lastupdated': package.upstream_lastupdated,
+                        'transplatform_url': package.transplatform_url,
+                        'transtats_lastupdated': package.transtats_lastupdated,
+                        'release_streams': package.release_streams,
+                        'release_branch_mapping': package.release_branch_mapping}
+        return package_dict
+
+    def get(self, request, **kwargs):
+        """
+        GET response, returns list of all packages present
+        :param request: Request object
+        :param kwargs: Keyword Arguments
+        :return: Custom JSON
+        """
+        packages = self.graph_manager.package_manager.get_packages()
+        response_text = [self._get_package_dict(package) for package in packages]
+        return Response(response_text)
