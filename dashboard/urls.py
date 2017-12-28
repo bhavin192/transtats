@@ -21,7 +21,7 @@ from django.views.generic.base import TemplateView, RedirectView
 
 # dashboard
 from dashboard.services.expose.views import (
-    PingServer, PackageStatus, GraphRuleCoverage, ReleaseStatus, ReleaseStatusDetail, PackagesList
+    PingServer, PackageStatus, GraphRuleCoverage, ReleaseStatus, ReleaseStatusDetail, PackagesList, AddNewPackage
 )
 from dashboard.views import (
     TranStatusPackagesView, TranStatusPackageView, TranStatusReleasesView, TranStatusReleaseView,
@@ -41,6 +41,7 @@ api_urls = [
     url(r'^release/(?P<release_stream>[\w-]+)/detail$', ReleaseStatusDetail.as_view(),
         name='api_release_status_detail'),
     url(r'^packages$', PackagesList.as_view(), name='api_packages_list'),
+    url(r'^packages/new$', AddNewPackage.as_view(), name='api_new_package'),
 ]
 
 ajax_urls = [

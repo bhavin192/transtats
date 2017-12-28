@@ -23,6 +23,7 @@ from rest_framework.response import Response
 # application
 from transtats import __version__
 from dashboard.managers.graphs import GraphManager
+from dashboard.managers.inventory import PackagesManager
 
 
 class APIMixin(object):
@@ -30,6 +31,7 @@ class APIMixin(object):
     Required Managers
     """
     graph_manager = GraphManager()
+    packages_manager = PackagesManager()
 
 
 class PingServer(APIView):
@@ -239,3 +241,38 @@ class PackagesList(APIMixin, APIView):
         packages = self.graph_manager.package_manager.get_packages()
         response_text = [self._get_package_dict(package) for package in packages]
         return Response(response_text)
+
+
+class AddNewPackage(APIMixin, APIView):
+    """
+    API view for add new package API
+    """
+
+    def post(self, request, **kwargs):
+        """
+        POST for adding new package
+        :param request: Request object
+        :param kwargs: Keyword Arguments
+        :return: Success or failure JSON object
+        """
+        post_params = request.data
+        # Check for required fields
+        required_params = ('package_name', 'upstream_url', 'transplatform_slug', 'release_streams')
+        if not set(required_params) <= set(post_params.keys()):
+            return Response({'error': 'More parameters required!'}, status=500)
+        # Validate package with translation platform
+        validate_package = self.packages_manager.validate_package(**post_params)
+        if not validate_package:
+            return Response({'error': post_params['package_name'] + ' Not found at selected translation platform'},
+                            status=500)
+        else:
+            post_params['package_name'] = validate_package
+            # todo: Check for Anonymous user, which does not have email address
+            active_user = getattr(request, 'user', None)
+            if active_user:
+                post_params['created_by'] = active_user.email
+            if not self.packages_manager.add_package(**post_params):
+                return Response({'error': 'Alas! Something unexpected happened. Please try adding your package again!'},
+                                status=500)
+            else:
+                return Response({'success': 'Great! Package added successfully.'})
