@@ -1,11 +1,11 @@
-{% extends "home.html" %}
-
+{% extends "base.html" %}
 {% block extrascript %}
 <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/static/js/excanvas.js"></script><![endif]-->
 <script src="/static/js/jquery.flot.js"></script>
 <script src="/static/js/jquery.flot.tooltip.js"></script>
 <script src="/static/js/jquery.flot.stack.js"></script>
 <script src="/static/js/waiting.dialog.js"></script>
+<script src="/static/node_modules/bootstrap-select/js/bootstrap-select.js"></script>
 <script src="/static/js/csrf.js"></script>
 <style type="text/css">
     .graph-area{width:100%;min-height:600px}
@@ -15,33 +15,33 @@ function getUrlVars(){for(var a,e=[],t=window.location.href.slice(window.locatio
 </script>
 {% endblock %}
 
-{% block navigation %}
-    <a href="{% url 'home' %}" class="btn btn-default"><i class="glyphicon glyphicon-dashboard"></i></a>
-    <a href="{% url 'custom-graph' %}" class="btn btn-default">Translation Coverage</a>
-{% endblock %}
 
-{% block tabcontent %}
-    <br/><hr/><span style="padding-left:20px;padding-right:10px;"
-                    class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-        <span id="coverageinfo" class="text-info">
-            Translation coverage of a package list for a specific release in selected languages.</span><hr/>
-    <div style="padding:20px">
-        <div class="row" style="padding-bottom:20px">
-            <div class="col-xs-12">
-                {% if rules %}
-                <select id="ruleName" class="selectpicker" data-live-search="true">
-                    <option selected disabled>Select Graph Rule</option>
-                    {% for rule in rules %}
-                        <option>{{ rule.rule_name }}</option>
-                    {% endfor %}
-                </select>
-                {% else %}
-                    <br/><p>No graph-rules configured. Add <a href="{% url 'settings-graph-rules-new' %}">one</a> now.</p>
-                {% endif %}
-                <span class="text-info pull-right" id="relbranch"></span>
-            </div>
-        </div>
-        <div id="grapharea" class="panel panel-info graph-area"></div>
-        <p id="graphdisclaimer"></p>
+
+{% block pagecontent %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class=" panel-title">
+      {% if rules %}
+      <select id="ruleName" class="selectpicker" data-live-search="true">
+        <option selected disabled>Select Graph Rule</option>
+        {% for rule in rules %}
+        <option>{{ rule.rule_name }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+      <p>No graph-rules configured. Add
+        <a href="{% url 'settings-graph-rules-new' %}">one</a> now.</p>
+      {% endif %}
     </div>
+    <span class="text-muted" id="coverageinfo">Translation coverage of a package list for a specific release in selected languages.</span>
+    <span class="text-info pull-right" id="relbranch"></span>
+  </div>
+  <div class="panel-body">
+    <div id="grapharea" class="graph-area"></div>
+  </div>
+  <div class="panel-footer">
+    <p id="graphdisclaimer"></p>
+  </div>
+</div>
+
 {% endblock %}
